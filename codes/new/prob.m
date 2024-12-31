@@ -14,7 +14,7 @@ exact_x = @(x) 5 * x.^4;
 
 % Setup the mesh
 for i=1:8
-pp   = 2;              % polynomial degree
+pp   = 1;              % polynomial degree
 n_en = pp + 1;         % number of element or local nodes
 n_el = 2*i;            % number of elements
 n_np = n_el * pp + 1;  % number of nodal points
