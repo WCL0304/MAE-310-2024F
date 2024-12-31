@@ -1,4 +1,8 @@
-clear all; clc; clf; % clean the memory, screen, and figure
+clear all; 
+clc; 
+clf; 
+close all;
+% clean the memory, screen, and figure
 
 % Problem definition
 f = @(x) -20*x.^3; % f(x) is the source
@@ -9,9 +13,10 @@ exact = @(x) x.^5;
 exact_x = @(x) 5 * x.^4;
 
 % Setup the mesh
+for i=1:8
 pp   = 2;              % polynomial degree
 n_en = pp + 1;         % number of element or local nodes
-n_el = 16;              % number of elements
+n_el = 2*i;            % number of elements
 n_np = n_el * pp + 1;  % number of nodal points
 n_eq = n_np - 1;       % number of equations
 n_int = 10;
@@ -127,3 +132,37 @@ for ee = 1 : n_el
   end
 end
 %driver中
+% eL2 , eH1
+eL2_error = 0; 
+eL2_exact = 0; 
+eH1_error = 0; 
+eH1_exact = 0; 
+for ee = 1 : n_el
+    x_ele = x_coor(IEN(ee,:)); 
+    u_ele = disp(IEN(ee,:)); 
+  for gausspoints = 1 : n_int
+          x_l = 0; 
+          u_l = 0;
+          u_l_x = 0;
+          for aa = 1 : n_en
+              x_l = x_l + x_ele(aa) * PolyShape(pp, aa, xi(gausspoints), 0);
+              u_l = u_l + u_ele(aa) * PolyShape(pp, aa, xi(gausspoints), 0); 
+              u_l_x = u_l_x + u_ele(aa) * PolyShape(pp, aa, xi(gausspoints), 1);
+          end
+          eL2_error = eL2_error + weight(gausspoints) * (u_l-exact(x_l))^2 * dx_dxi;
+          eL2_exact = eL2_exact + weight(gausspoints) * (exact(x_l))^2 * dx_dxi;
+          eH1_error = eH1_error + weight(gausspoints) * (u_l_x*dxi_dx-exact_x(x_l))^2 * dx_dxi;
+          eH1_exact = eH1_exact + weight(gausspoints) * (exact_x(x_l))^2 * dx_dxi;
+  end
+end
+eL2(i) = sqrt(eL2_error / eL2_exact);
+eH1(i) = sqrt(eH1_error / eH1_exact);
+end
+x_h = 1./ (2: 2: 16);
+plot(log(x_h),log(eL2),'r' )
+hold on
+plot(log(x_h),log(eH1),'g')
+title('degree(pp) is 1');
+legend('eL2','eH1');
+xlabel('log(h)');
+ylabel('log(eL2) or log(eH1)');
