@@ -136,3 +136,5 @@ plot(x_coor(IEN(1 : n_el,1 )), error)
 hold on
 end
 legend('qua=1','qua=2','qua=3','qua=4','qua=5','qua=6');
+xlabel('x');
+ylabel('error');
