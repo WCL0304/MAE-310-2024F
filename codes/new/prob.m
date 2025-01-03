@@ -166,3 +166,5 @@ title('degree(pp) is 1');
 legend('eL2','eH1');
 xlabel('log(h)');
 ylabel('log(eL2) or log(eH1)');
+slopeL=log(eL2)/log(x_h);
+slpoeH=log(eH1)/log(x_h);
