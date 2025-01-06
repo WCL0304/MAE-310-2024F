@@ -33,3 +33,20 @@ y_coor = x_coor;
 hx = 1.0 / n_el_x;        % mesh size in x-dir
 hy = 1.0 / n_el_y;        % mesh size in y-dir
 
+% mesh generation
+n_el_x_values = [10, 20, 40, 80, 160];
+n_el_y_values = n_el_x_values;
+
+% 存储误差
+errors_L2_quad = zeros(size(n_el_x_values));
+errors_H1_quad = zeros(size(n_el_x_values));
+errors_L2_tri = zeros(size(n_el_x_values));
+errors_H1_tri = zeros(size(n_el_x_values));
+
+% 制造的解
+manufactured_solution = @(x, y) x.^2 .* y.^2;
+
+% 制造的解的梯度
+manufact_solution_grad_x = @(x, y) 2 * x .* y.^2;
+manufact_solution_grad_y = @(x, y) 2 * y .* x.^2;
+
