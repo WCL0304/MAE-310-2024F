@@ -78,7 +78,27 @@ for i = 1:length(n_el_x_values)
         end
     end
     n_eq_tri = counter_tri;% 三角形单元的自由度数
-
+    
+    % Quadrilateral elements (not used in this version)
+    % IEN_quad = zeros(n_el, 4);
+    % for ex = 1 : n_el_x
+    %     for ey = 1 : n_el_y
+    %         ee = (ey-1) * n_el_x + ex;
+    %         IEN_quad(ee, :) = [(ey-1) * n_np_x + ex, (ey-1) * n_np_x + ex + 1, ey * n_np_x + ex + 1, ey * n_np_x + ex];
+    %     end
+    % end
+    
+    % ID_quad = zeros(n_np, 1);
+    % counter_quad = 0;
+    % for ny = 2 : n_np_y - 1
+    %     for nx = 2 : n_np_x - 1
+    %         index = (ny-1)*n_np_x + nx;
+    %         counter_quad = counter_quad + 1;
+    %         ID_quad(index) = counter_quad;
+    %     end
+    % end
+    % n_eq_quad = counter_quad;
+    
     % Triangle elements
     K_tri = spalloc(n_eq_tri, n_eq_tri, 9 * n_eq_tri); % 初始化稀疏刚度矩阵
     F_tri = zeros(n_eq_tri, 1);% 初始化载荷向量
@@ -130,8 +150,8 @@ for i = 1:length(n_el_x_values)
             end
         end
     end
-
-        % Solve the stiffness matrix for triangle elements
+    
+    % Solve the stiffness matrix for triangle elements
     dn_tri = K_tri \ F_tri;
     disp_tri = zeros(n_np, 1);
     for ii = 1 : n_np
@@ -153,6 +173,78 @@ for i = 1:length(n_el_x_values)
     errors_H1_tri(i) = error_function_H1(disp_tri, u_man, ...
         exact_x(x_coor, y_coor), exact_y(x_coor, y_coor), ...
         u_man_x, u_man_y);
+    
+    % Quadrilateral elements (not used in this version)
+    % K_quad = spalloc(n_eq_quad, n_eq_quad, 9 * n_eq_quad);
+    % F_quad = zeros(n_eq_quad, 1);
+    % 
+    % for ee = 1 : n_el
+    %     x_ele = x_coor( IEN_quad(ee, 1:4) );
+    %     y_ele = y_coor( IEN_quad(ee, 1:4) );
+    %     k_ele = zeros(4, 4);
+    %     f_ele = zeros(4, 1);
+    %     for ll = 1 : n_int
+    %         x_l = 0.0; y_l = 0.0;
+    %         dx_dxi = 0.0; dx_deta = 0.0;
+    %         dy_dxi = 0.0; dy_deta = 0.0;
+    %         for aa = 1 : 4
+    %             x_l = x_l + x_ele(aa) * Quad(aa, xi(ll), eta(ll));
+    %             y_l = y_l + y_ele(aa) * Quad(aa, xi(ll), eta(ll));
+    %             [Na_xi, Na_eta] = Quad_grad(aa, xi(ll), eta(ll));
+    %             dx_dxi = dx_dxi + x_ele(aa) * Na_xi;
+    %             dx_deta = dx_deta + x_ele(aa) * Na_eta;
+    %             dy_dxi = dy_dxi + y_ele(aa) * Na_xi;
+    %             dy_deta = dy_deta + y_ele(aa) * Na_eta;
+    %         end
+    %         detJ = dx_dxi * dy_deta - dx_deta * dy_dxi;
+    %         for aa = 1 : 4
+    %             Na = Quad(aa, xi(ll), eta(ll));
+    %             [Na_xi, Na_eta] = Quad_grad(aa, xi(ll), eta(ll));
+    %             Na_x = (Na_xi * dy_deta - Na_eta * dy_dxi) / detJ;
+    %             Na_y = (-Na_xi * dx_deta + Na_eta * dx_dxi) / detJ;
+    %             f_ele(aa) = f_ele(aa) + weight(ll) * detJ * f(x_l, y_l) * Na;
+    %             for bb = 1 : 4
+    %                 Nb = Quad(bb, xi(ll), eta(ll));
+    %                 [Nb_xi, Nb_eta] = Quad_grad(bb, xi(ll), eta(ll));
+    %                 Nb_x = (Nb_xi * dy_deta - Nb_eta * dy_dxi) / detJ;
+    %                 Nb_y = (-Nb_xi * dx_deta + Nb_eta * dx_dxi) / detJ;
+    %                 k_ele(aa, bb) = k_ele(aa, bb) + weight(ll) * detJ * kappa * (Na_x * Nb_x + Na_y * Nb_y);
+    %             end
+    %         end
+    %     end
+    %     for aa = 1 : 4
+    %         PP = ID_quad(IEN_quad(ee, aa));
+    %         if PP > 0
+    %             F_quad(PP) = F_quad(PP) + f_ele(aa);
+    %             for bb = 1 : 4
+    %                 QQ = ID_quad(IEN_quad(ee, bb));
+    %                 if QQ > 0
+    %                     K_quad(PP, QQ) = K_quad(PP, QQ) + k_ele(aa, bb);
+    %                 end
+    %             end
+    %         end
+    %     end
+    % end
+    
+    % Solve the stiffness matrix for quadrilateral elements
+    % dn_quad = K_quad \ F_quad;
+    % disp_quad = zeros(n_np, 1);
+    % for ii = 1 : n_np
+    %     index = ID_quad(ii);
+    %     if index > 0
+    %         disp_quad(ii) = dn_quad(index);
+    %     end
+    % end
+    
+    % Error for quadrilateral elements
+    % u_man = manufactured_solution(x_coor, y_coor);
+    % u_man_x = manufact_solution_grad_x(x_coor, y_coor);
+    % u_man_y = manufact_solution_grad_y(x_coor, y_coor);
+    % 
+    % errors_L2_quad(i) = error_function_L2(disp_quad, u_man);
+    % errors_H1_quad(i) = error_function_H1(disp_quad, u_man, ...
+    %     exact_x(x_coor, y_coor), exact_y(x_coor, y_coor), ...
+    %     u_man_x, u_man_y);
 end
 
 % 绘制log-log误差图
@@ -161,10 +253,11 @@ mesh_sizes = 1 ./ n_el_x_values;
 loglog(mesh_sizes, errors_L2_tri, '-o', 'DisplayName', 'L2 Error (Triangle)');
 hold on;
 loglog(mesh_sizes, errors_H1_tri, '-x', 'DisplayName', 'H1 Error (Triangle)');
+% loglog(mesh_sizes, errors_L2_quad, '--o', 'DisplayName', 'L2 Error (Quad)');
+% hold on
+% loglog(mesh_sizes, errors_H1_quad, '--x', 'DisplayName', 'H1 Error (Quad)');
 xlabel('Mesh Size (h)');
 ylabel('Error');
 title('Convergence Rate of Errors');
 legend;
 grid on;
-
-    
