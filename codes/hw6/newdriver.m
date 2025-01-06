@@ -153,5 +153,18 @@ for i = 1:length(n_el_x_values)
     errors_H1_tri(i) = error_function_H1(disp_tri, u_man, ...
         exact_x(x_coor, y_coor), exact_y(x_coor, y_coor), ...
         u_man_x, u_man_y);
+end
+
+% 绘制log-log误差图
+figure;
+mesh_sizes = 1 ./ n_el_x_values;
+loglog(mesh_sizes, errors_L2_tri, '-o', 'DisplayName', 'L2 Error (Triangle)');
+hold on;
+loglog(mesh_sizes, errors_H1_tri, '-x', 'DisplayName', 'H1 Error (Triangle)');
+xlabel('Mesh Size (h)');
+ylabel('Error');
+title('Convergence Rate of Errors');
+legend;
+grid on;
 
     
