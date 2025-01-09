@@ -3,15 +3,16 @@ clear; clc;
 
 % 读取网格数据
 [nodes, elements, boundaryEdges] = read_gmsh_mesh('quarter-plate-with-hole-quad.msh');
-disp(['节点数组大小: ', num2str(size(nodes, 1)), ' x ', num2str(size(nodes, 2))]); % 调试信息
-disp(['边界元素数组大小: ', num2str(size(boundaryEdges, 1)), ' x ', num2str(size(boundaryEdges, 2))]); % 调试信息
+disp(['节点数组大小:', num2str(size(nodes, 1)), 'x', num2str(size(nodes, 2))]); % 调试信息
+disp(['边界元素数组大小:', num2str(size(boundaryEdges, 1)), 'x', num2str(size(boundaryEdges, 2))]); % 调试信息
 disp('边界元素内容:');
 disp(boundaryEdges); % 打印边界元素的具体内容
 
 % 材料参数
 E = 1e11; % 弹性模量
 nu = 0.3; % 泊松比
-L = 4; % 假设 L 为 4
+L = 4;    % 假设L为4
+R = 0.5;  % 孔的半径
 
 % 模型选择
 isPlaneStress = true; % 平面应力模型
@@ -31,7 +32,7 @@ for i = 1:size(elements, 1)
     K_global(indices, indices) = K_global(indices, indices) + K_elem;
 end
 
-% 应用 Neumann 边界条件
+% 应用Neumann边界条件
 for i = 1:size(neumannBC, 1)
     node = neumannBC(i, 1);
     direction = neumannBC(i, 2);
@@ -39,7 +40,7 @@ for i = 1:size(neumannBC, 1)
     F_global(2 * (node - 1) + direction) = value;
 end
 
-% 应用 Dirichlet 边界条件
+% 应用Dirichlet边界条件
 K_dirichlet = K_global;
 F_dirichlet = F_global;
 for i = 1:size(dirichletBC, 1)
@@ -65,5 +66,5 @@ visualize_results(nodes, displacements, strains, stresses);
 % 计算误差
 exact_solution = @(x, y, type) exact_solution_helper(x, y, L, R, type);
 [L2_error, H1_error] = calculate_errors(nodes, displacements, exact_solution);
-disp(['L2范数误差: ', num2str(L2_error)]);
-disp(['H1范数误差: ', num2str(H1_error)]);
+disp(['L2范数误差:', num2str(L2_error)]);
+disp(['H1范数误差:', num2str(H1_error)]);
